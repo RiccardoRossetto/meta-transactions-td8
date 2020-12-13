@@ -73,7 +73,7 @@ truffle(rinkeby)> tokenID = "4" # obtained calling the nextTokenId field of the 
 '4' 
 ```
 
-Now we instantiated the professors MetaTxExercice contract:
+Then, we instantiated the professors MetaTxExercice contract:
 
 ```{bash}
 truffle(rinkeby)> let cont = MetaTxExercice.at("0x53bb77F35df71f463D1051061B105Aafb9A87ea1")
@@ -96,4 +96,43 @@ truffle(rinkeby)> cont.claimAToken(sig, {from: acc[1]})
 Transaction: [0x45cfb89060407c698cbbcc5467f78251ea9ea017ffa31612178891dafe2061b5](https://rinkeby.etherscan.io/tx/0x45cfb89060407c698cbbcc5467f78251ea9ea017ffa31612178891dafe2061b5)
 
 #### 7) Create on Your Contract a claimToken Function.
+
+The function claimToken that we added to our MinterContract, takes as an input a signature produced signing the ERC721 token contract address and the ID of the token to mint. Moreover, in the constructor of the contract, we added an address field, which will contain the address of whoever deployed the contract.
+
+MinterContract address: [0x12C2e59e746a173ed0f34a826350F4085dB1B92F](https://rinkeby.etherscan.io/address/0x12c2e59e746a173ed0f34a826350f4085db1b92f)  
+
+Deployment TX: [0xff0b94be7fa0d88785fee8b5cb24a2c93643008a3a45fb34bc742f4d65405224](https://rinkeby.etherscan.io/tx/0xff0b94be7fa0d88785fee8b5cb24a2c93643008a3a45fb34bc742f4d65405224)
+
+To test the claimToken function we first had to add our MinterContract to the MNT token's white-list:
+
+```{bash}
+truffle(rinkeby)> let cont = await MinterContract.deployed()
+truffle(rinkeby)> let token = await ERC721MNT.deployed()
+truffle(rinkeby)> token.manageWhiteList(cont.address, true)
+```
+
+White-list TX: [0x238a59df13f275c5dc79ccebea62bbc3438fe80f466a07a8db341ffd06328109](https://rinkeby.etherscan.io/tx/0x238a59df13f275c5dc79ccebea62bbc3438fe80f466a07a8db341ffd06328109)
+
+Once we got MinterContract white-listed, to mint MNT tokens, we went ahead with the testing of the claimToken function:
+
+```{bash}
+truffle(rinkeby)> let acc = await web3.eth.getAccounts()
+truffle(rinkeby)> acc[0]
+'0xCB93e3b2bc29Ed71062626360888f358A4C95045'
+truffle(rinkeby)> tokenAddress = token.address
+'0x731b48468FDBC484A90e5A8dFe7Bd1EdAC3844Fb'
+truffle(rinkeby)> tokenID = token.tokenToMintID().then(res => res.toString())
+'2'
+truffle(rinkeby)> encodedMessage = await web3.eth.abi.encodeParamters(['address','uint'],[tokenAddress,tokenID])
+'0x000000000000000000000000731b48468fdbc484a90e5a8dfe7bd1edac3844fb0000000000000000000000000000000000000000000000000000000000000002'
+truffle(rinkeby)> hash = web3.utils.keccak256(encodedMessage)
+'0x3802f842d2f0fb931f791591e8bb5dd44e3479ca9d18fe54a822ea3927f1c5e6'
+truffle(rinkeby)> signature = web3.eth.sign(hash, acc[0])
+'0xe57d43311c3ffdde6786e89f26de3fef4cf2dca12d262faf1d4751dba090fe390234f8b62b1b68f6f52224c98b160c345bbd1e2cdd00ba82471b94235f1842821c'
+truffle(rinkeby)> cont.claimToken(sig, {from: acc[1]})
+```
+
+claimToken TX: [0x4307a1a419225b112476e65591c6a64258e2e94ff53bd4dd4f2a67249e8cdde5](https://rinkeby.etherscan.io/tx/0x4307a1a419225b112476e65591c6a64258e2e94ff53bd4dd4f2a67249e8cdde5)
+
+The claimToken function we implemented, will only accept a signature from the owner of the contract (i.e. whoever deployed it), which in our case it's our first account, acc[0], while instead the call to the function was made with our second account acc[1].
 
