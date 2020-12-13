@@ -39,9 +39,6 @@ contract MinterContract {
 		tokenMNT.mint(msg.sender);
 	}
 
-
-
-
     function extractAddress(bytes32 _hash, bytes memory _signature) internal view returns (address) {
         bytes32 r;
         bytes32 s;
@@ -76,34 +73,34 @@ contract MinterContract {
 
 
 	function signerIsWhitelisted(bytes32 _hash, bytes memory _signature) internal view returns (bool){
-    bytes32 r;
-    bytes32 s;
-    uint8 v;
-    // Check the signature length
-    if (_signature.length != 65) {
-      return false;
-    }
-    // Divide the signature in r, s and v variables
-    // ecrecover takes the signature parameters, and the only way to get them
-    // currently is to use assembly.
-    // solium-disable-next-line security/no-inline-assembly
-    assembly {
-      r := mload(add(_signature, 32))
-      s := mload(add(_signature, 64))
-      v := byte(0, mload(add(_signature, 96)))
-    }
-    // Version of signature should be 27 or 28, but 0 and 1 are also possible versions
-    if (v < 27) {
-      v += 27;
-    }
-    // If the version is correct return the signer address
-    if (v != 27 && v != 28) {
-      return false;
-    } else {
-      return whitelist[ecrecover(keccak256(
-        abi.encodePacked("\x19Ethereum Signed Message:\n32", _hash)
-      ), v, r, s)];
-    }
-  }
+	    bytes32 r;
+		bytes32 s;
+		uint8 v;
+		// Check the signature length
+		if (_signature.length != 65) {
+		return false;
+		}
+		// Divide the signature in r, s and v variables
+		// ecrecover takes the signature parameters, and the only way to get them
+		// currently is to use assembly.
+		// solium-disable-next-line security/no-inline-assembly
+		assembly {
+			r := mload(add(_signature, 32))
+			s := mload(add(_signature, 64))
+			v := byte(0, mload(add(_signature, 96)))
+			}
+		// Version of signature should be 27 or 28, but 0 and 1 are also possible versions
+		if (v < 27) {
+		v += 27;
+		}
+		// If the version is correct return the signer address
+		if (v != 27 && v != 28) {
+		return false;
+		} else {
+		return whitelist[ecrecover(keccak256(
+			abi.encodePacked("\x19Ethereum Signed Message:\n32", _hash)
+		), v, r, s)];
+		}	
+	}
 
 }
