@@ -56,7 +56,7 @@ Transaction: [0xeb197a083915f35c29be97bba1c47706a229f7fbe0a710ddaa39d351055047e3
 
 To claim a token we had to sign a hash with our main account which was white-listed in the previous point, then send said message with another account, so as before we got our accounts:
 
-```{bash}
+```bash
 truffle(rinkeby)> let acc = await web3.eth.getAccounts()
 truffle(rinkeby)> acc[0]
 '0xCB93e3b2bc29Ed71062626360888f358A4C95045' # signer
@@ -66,7 +66,7 @@ truffle(rinkeby)> acc[1]
 
 The hash to sign is the one produced encoding the address of the professor's ERC721 token, and the token ID that would be minted, so first we got these two values:
 
-```{bash}
+```bash
 truffle(rinkeby)> token = "0x3e2E325Ffd39BBFABdC227D31093b438584b7FC3"
 '0x3e2E325Ffd39BBFABdC227D31093b438584b7FC3'
 truffle(rinkeby)> tokenID = "4" # obtained calling the nextTokenId field of the contract.
@@ -75,13 +75,13 @@ truffle(rinkeby)> tokenID = "4" # obtained calling the nextTokenId field of the 
 
 Then, we instantiated the professors MetaTxExercice contract:
 
-```{bash}
+```bash
 truffle(rinkeby)> let cont = MetaTxExercice.at("0x53bb77F35df71f463D1051061B105Aafb9A87ea1")
 ```
 
 So now we have to our disposal all that is needed to claim a token from the professor's contract:
 
-```{bash}
+```bash
 truffle(rinkeby)> encodedMessage = await web3.eth.abi.encodeParameters(['address','uint'],[token, tokenID])
 truffle(rinkeby)> encodedMessage
 '0x0000000000000000000000003e2e325ffd39bbfabdc227d31093b438584b7fc30000000000000000000000000000000000'
@@ -105,7 +105,7 @@ Deployment TX: [0xff0b94be7fa0d88785fee8b5cb24a2c93643008a3a45fb34bc742f4d654052
 
 To test the claimToken function we first had to add our MinterContract to the MNT token's white-list:
 
-```{bash}
+```bash
 truffle(rinkeby)> let cont = await MinterContract.deployed()
 truffle(rinkeby)> let token = await ERC721MNT.deployed()
 truffle(rinkeby)> token.manageWhiteList(cont.address, true)
@@ -115,7 +115,7 @@ White-list TX: [0x238a59df13f275c5dc79ccebea62bbc3438fe80f466a07a8db341ffd063281
 
 Once we got MinterContract white-listed, to mint MNT tokens, we went ahead with the testing of the claimToken function:
 
-```{bash}
+```bash
 truffle(rinkeby)> let acc = await web3.eth.getAccounts()
 truffle(rinkeby)> acc[0]
 '0xCB93e3b2bc29Ed71062626360888f358A4C95045'
