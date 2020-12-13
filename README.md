@@ -136,3 +136,23 @@ claimToken TX: [0x4307a1a419225b112476e65591c6a64258e2e94ff53bd4dd4f2a67249e8cdd
 
 The claimToken function we implemented, will only accept a signature from the owner of the contract (i.e. whoever deployed it), which in our case it's our first account, acc[0], while instead the call to the function was made with our second account acc[1].
 
+#### 8) Deploy BouncerProxy and an ERC20 token contract. White-list an address A on the bouncer and Credit it 10 ERC20 Tokens.
+
+We first deployed our ERC20 token, ERC20MNT.sol, we deployed it from our address A (i.e. acc[0]) and minted straight away 10 tokens to this accounts in the migration.
+
+ERC20MNT address: [0x74674c4809eF4224a1460c3E4EBe83154E1B0964](https://rinkeby.etherscan.io/address/0x74674c4809eF4224a1460c3E4EBe83154E1B0964)
+
+Deployment TX: [0xbc70ccbe629720c3e6a2ae09d20e1f967607247328a5f86fad1485d55f7c1647](0xbc70ccbe629720c3e6a2ae09d20e1f967607247328a5f86fad1485d55f7c1647)
+
+In the transaction above, it's possible to see the 10 MNT transfer to address A.
+
+We then proceeded with deploying the BouncerProxy contract:
+
+Deployment TX: [0x873185810d27768ae1f1b75a5b47c89b86f30d3a42483f3ca1468b2c2ee869b6](https://rinkeby.etherscan.io/tx/0x873185810d27768ae1f1b75a5b47c89b86f30d3a42483f3ca1468b2c2ee869b6)
+
+BouncerProxy address: [0x7d989ba93296157a4488c6e00951f12ce7c9400e](https://rinkeby.etherscan.io/address/0x7d989ba93296157a4488c6e00951f12ce7c9400e)
+
+Moreover, our address A is already white-listed on BouncerProxy since it's the address from which we deployed it.
+
+#### 9) Claim a Token from your ERC721 using BouncerProxy, Sending an Authorization signed by A, in a TX sent by B.
+
