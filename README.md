@@ -1,10 +1,10 @@
 # TD8: Meta Transactions
 
-#### 1) Create a Truffle Project and Configure it on Infura.
+### 1) Create a Truffle Project and Configure it on Infura.
 
 As in the previous TDs, we initiated our Truffle Project, and configured it with our Infura API key and the mnemonic from our Metamask wallet suitably put in an environment file from which we imported them into the truffle-config.js file.
 
-#### 2) Create a Mintable ERC721 Smart Contract.
+### 2) Create a Mintable ERC721 Smart Contract.
 
 The contract is called ERC721MNT, and its symbol is MNT. 
 
@@ -14,7 +14,7 @@ MNT Address: [0x731b48468FDBC484A90e5A8dFe7Bd1EdAC3844Fb](https://rinkeby.ethers
 
 Deployment TX: [0x2ca1a9f42b1758e5a33fb50096e7f0b98b419286a0f668c928c300914a1f2246](https://rinkeby.etherscan.io/tx/0x2ca1a9f42b1758e5a33fb50096e7f0b98b419286a0f668c928c300914a1f2246)
 
-#### 3) Create a Minter Contract that is Allowed to Mint ERC721 Tokens.
+### 3) Create a Minter Contract that is Allowed to Mint ERC721 Tokens.
 
 The contract can be found in this repo with the name MinterContract.sol.
 
@@ -22,11 +22,11 @@ MinterContract Address: [0x12C2e59e746a173ed0f34a826350F4085dB1B92F](https://rin
 
 Deployment TX: [0xff0b94be7fa0d88785fee8b5cb24a2c93643008a3a45fb34bc742f4d65405224](https://rinkeby.etherscan.io/tx/0xff0b94be7fa0d88785fee8b5cb24a2c93643008a3a45fb34bc742f4d65405224)
 
-#### 4) Integrate signerIsWhitelisted from bouncerProxy in your Contract with all the associated variable.
+### 4) Integrate signerIsWhitelisted from bouncerProxy in your Contract with all the associated variable.
 
 The function has been integrated in MinterContract.sol, as it can be seen in its code, the function takes an hash and the corresponding signature, it extract the address corresponding to said hash and signature, and access the white-list mapping returning true or false, depending whether the address is white-listed or not.
 
-#### 5) Get White-listed on contract [0x53bb77F35df71f463D1051061B105Aafb9A87ea1](https://rinkeby.etherscan.io/address/0x53bb77f35df71f463d1051061b105aafb9a87ea1)
+### 5) Get White-listed on contract [0x53bb77F35df71f463D1051061B105Aafb9A87ea1](https://rinkeby.etherscan.io/address/0x53bb77f35df71f463d1051061b105aafb9a87ea1)
 
 In order to get white-listed on said contract, we had to sign a given hash and provide the signature produced.
 
@@ -52,7 +52,7 @@ To get white-listed on the professor's contract, we went on its etherscan page, 
 
 Transaction: [0xeb197a083915f35c29be97bba1c47706a229f7fbe0a710ddaa39d351055047e3](https://rinkeby.etherscan.io/tx/0xeb197a083915f35c29be97bba1c47706a229f7fbe0a710ddaa39d351055047e3)
 
-#### 6) Claim a Token on contract [0x3e2E325Ffd39BBFABdC227D31093b438584b7FC3](https://rinkeby.etherscan.io/address/0x3e2e325ffd39bbfabdc227d31093b438584b7fc3) through contract [0x53bb77F35df71f463D1051061B105Aafb9A87ea1](https://rinkeby.etherscan.io/address/0x53bb77f35df71f463d1051061b105aafb9a87ea1)
+### 6) Claim a Token on contract [0x3e2E325Ffd39BBFABdC227D31093b438584b7FC3](https://rinkeby.etherscan.io/address/0x3e2e325ffd39bbfabdc227d31093b438584b7fc3) through contract [0x53bb77F35df71f463D1051061B105Aafb9A87ea1](https://rinkeby.etherscan.io/address/0x53bb77f35df71f463d1051061b105aafb9a87ea1)
 
 To claim a token we had to sign a hash with our main account which was white-listed in the previous point, then send said message with another account, so as before we got our accounts:
 
@@ -95,7 +95,7 @@ truffle(rinkeby)> cont.claimAToken(sig, {from: acc[1]})
 
 Transaction: [0x45cfb89060407c698cbbcc5467f78251ea9ea017ffa31612178891dafe2061b5](https://rinkeby.etherscan.io/tx/0x45cfb89060407c698cbbcc5467f78251ea9ea017ffa31612178891dafe2061b5)
 
-#### 7) Create on Your Contract a claimToken Function.
+### 7) Create on Your Contract a claimToken Function.
 
 The function claimToken that we added to our MinterContract, takes as an input a signature produced signing the ERC721 token contract address and the ID of the token to mint. Moreover, in the constructor of the contract, we added an address field, which will contain the address of whoever deployed the contract.
 
@@ -136,7 +136,7 @@ claimToken TX: [0x4307a1a419225b112476e65591c6a64258e2e94ff53bd4dd4f2a67249e8cdd
 
 The claimToken function we implemented, will only accept a signature from the owner of the contract (i.e. whoever deployed it), which in our case it's our first account, acc[0], while instead the call to the function was made with our second account acc[1].
 
-#### 8) Deploy BouncerProxy and an ERC20 token contract. White-list an address A on the bouncer and Credit it 10 ERC20 Tokens.
+### 8) Deploy BouncerProxy and an ERC20 token contract. White-list an address A on the bouncer and Credit it 10 ERC20 Tokens.
 
 We first deployed our ERC20 token, ERC20MNT.sol, we deployed it from our address A (i.e. acc[0]) and minted straight away 10 tokens to this accounts in the migration.
 
@@ -154,7 +154,7 @@ BouncerProxy address: [0x7d989ba93296157a4488c6e00951f12ce7c9400e](https://rinke
 
 Moreover, our address A is already white-listed on BouncerProxy since it's the address from which we deployed it.
 
-#### 9) Claim a Token from your ERC721 using BouncerProxy, Sending an Authorization signed by A, in a TX sent by B.
+### 9) Claim a Token from your ERC721 using BouncerProxy, Sending an Authorization signed by A, in a TX sent by B.
 
 Context: address A is white-listed on BouncerProxy, and we will claim an ERC721 token to this address using the proxy, and forwarding a transaction from address B, so that the fees will be payed by B.
 
@@ -226,7 +226,7 @@ Here's the TX: [0x7edc2992f0b22c2231aa7da5e87adc62f27774b01ade8b7e8c18a3c19479fc
 
 It's possible to see that one MNT token has been minted to address acc[0], while the fees have been payed by acc[1].
 
-#### 10) Same as Point 9, but A must tip B in ETH.
+### 10) Same as Point 9, but A must tip B in ETH.
 
 Since we now have to tip in ETH, we will also define the zero address, so that the forward function will reward in ETH instead of in tokens, and the reward amount for B:
 
@@ -287,7 +287,7 @@ Here's the TX: [0x25f446b7bdf3555f063af3297e79824fc209e3a70fbfe4bcecfc1a48724665
 
 It's possible to notice the transfer of 0.005 ETH to address B, which we previously funded to our bouncer, hence why we set the value to 0.
 
-#### 11) Same as point 9, but A Must Tip B with ERC20 Token Deployed in point 8.
+### 11) Same as point 9, but A Must Tip B with ERC20 Token Deployed in point 8.
 
 The ERC20 token we deployed is called MNT, and address A already has 10 MNTs, so to tip B we needed to change the input arguments of the forward function as follows:
 
