@@ -156,3 +156,194 @@ Moreover, our address A is already white-listed on BouncerProxy since it's the a
 
 #### 9) Claim a Token from your ERC721 using BouncerProxy, Sending an Authorization signed by A, in a TX sent by B.
 
+Context: address A is white-listed on BouncerProxy, and we will claim an ERC721 token to this address using the proxy, and forwarding a transaction from address B, so that the fees will be payed by B.
+
+The first thing we had to do, is to get the necessary arguments to use the forward function of the proxy:
+
+```bash
+truffle(rinkeby)> let acc = await web3.eth.getAccounts()
+truffle(rinkeby)> let token = await ERC721MNT.deployed()
+truffle(rinkeby)> let bouncer = await BouncerProxy.deployed()
+```
+
+Now that we have the contracts instances and the accounts into our truffle console, we will get the ABI of the mint function in our ERC721 token contract.
+
+```bash
+truffle(rinkeby)> data = await token.contract.methods.mint(acc[0]).encodeABI()
+truffle(rinkeby)> data
+'0x6a627842000000000000000000000000cb93e3b2bc29ed71062626360888f358a4c95045'
+```
+
+We then produced an hash with all the arguments required by the bouncer's forward function, and signed it:
+
+```bash
+truffle(rinkeby)> bouncer.getHash(acc[0], token.address, 0, data, token.address, 0)
+'0xec7778110a7f68f1ad58ceb5e294ebf040e695382400d1dd1facfc069815fd11'
+truffle(rinkeby)> sig = await web3.eth.sign('0xec7778110a7f68f1ad58ceb5e294ebf040e695382400d1dd1facfc069815fd11', acc[0])
+truffle(rinkeby)> sig
+'0x034db3ddafe850c97ecb6b4a48269c1fb1a77d411f5f872f421b6bc4986b856247d17ce2f957e41b226202880f9adbf6011e11d56e8eebc0dc7bcf71f930f41b1c'
+```
+
+And finally we can call the forward function of the bouncer, and at this stage no reward has been set:
+
+```bash
+truffle(rinkeby)> bouncer.forward(sig, acc[0], token.address, 0, data, token.address, 0, {from: acc[1]})
+{ tx:
+   '0x7edc2992f0b22c2231aa7da5e87adc62f27774b01ade8b7e8c18a3c19479fc4b',
+  receipt:
+   { blockHash:
+      '0x8e3ea3fd985c6a99234fc24570417994d212692ebe3dc81f10794eef0d0de84e',
+     blockNumber: 7717682,
+     contractAddress: null,
+     cumulativeGasUsed: 201492,
+     from: '0x80f312bb7cf1dbbdfa8d2339aa025816dbe03ccc',
+     gasUsed: 174157,
+     logs: [ [Object] ],
+     logsBloom:
+      '0x00000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000008000000000000000000000000000000000000000000000000020000000000000000000800000000000000000000000010000040000000000000000000000000000000001000000800000000000000200000000000000000000042000000000000000000000000000000002000000080000000000000400002400000000000000000010020000000400000000000000000000020000000000000000000000000000000000000000000000000000000000000000000',
+     status: true,
+     to: '0x7d989ba93296157a4488c6e00951f12ce7c9400e',
+     transactionHash:
+      '0x7edc2992f0b22c2231aa7da5e87adc62f27774b01ade8b7e8c18a3c19479fc4b',
+     transactionIndex: 1,
+     rawLogs: [ [Object], [Object] ] },
+  logs:
+   [ { address: '0x7D989ba93296157a4488C6e00951F12cE7c9400E',
+       blockHash:
+        '0x8e3ea3fd985c6a99234fc24570417994d212692ebe3dc81f10794eef0d0de84e',
+       blockNumber: 7717682,
+       logIndex: 1,
+       removed: false,
+       transactionHash:
+        '0x7edc2992f0b22c2231aa7da5e87adc62f27774b01ade8b7e8c18a3c19479fc4b',
+       transactionIndex: 1,
+       id: 'log_0ebd07b4',
+       event: 'Forwarded',
+       args: [Result] } ] }
+```
+
+Here's the TX: [0x7edc2992f0b22c2231aa7da5e87adc62f27774b01ade8b7e8c18a3c19479fc4b](https://rinkeby.etherscan.io/tx/0x7edc2992f0b22c2231aa7da5e87adc62f27774b01ade8b7e8c18a3c19479fc4b)
+
+It's possible to see that one MNT token has been minted to address acc[0], while the fees have been payed by acc[1].
+
+#### 10) Same as Point 9, but A must tip B in ETH.
+
+Since we now have to tip in ETH, we will also define the zero address, so that the forward function will reward in ETH instead of in tokens, and the reward amount for B:
+
+```bash
+truffle(rinkeby)> zeroAddress = "0x0000000000000000000000000000000000000000"
+truffle(rinkeby)> rewardAmount = "5000000000000000" # 0.005 ETH
+```
+
+As before, we get the hash of the arguments and sign it:
+
+```bash
+truffle(rinkeby)> bouncer.getHash(acc[0], token.address, 0, data, zeroAddress, rewardAmount)
+'0x8f86f7377a7da870e3db7beded4567ea5b8e84da318a741b2027617fa11d949b'
+truffle(rinkeby)> sig = await web3.eth.sign('0x8f86f7377a7da870e3db7beded4567ea5b8e84da318a741b2027617fa11d949b', acc[0])
+truffle(rinkeby)> sig
+'0xb520b9312c123917056fd1429d6fdc9310b59539dd6826211897da24911afc985046772d2466a9460c5581c2e65fcf230fb60de6aef4f18ada059ea838a73be91c'
+```
+
+And finally, we can forward the transaction using acc[1], i.e. address B.
+
+```bash
+truffle(rinkeby)> bouncer.forward(sig, acc[0], token.address, 0, data, zeroAddress, rewardAmount, {from: acc[1]})
+{ tx:
+   '0x25f446b7bdf3555f063af3297e79824fc209e3a70fbfe4bcecfc1a487246652b',
+  receipt:
+   { blockHash:
+      '0x88cd44b1a47983dd6b8fbe72ced52c53bd34a69dd427edc12589efbbca5ef089',
+     blockNumber: 7717754,
+     contractAddress: null,
+     cumulativeGasUsed: 942095,
+     from: '0x80f312bb7cf1dbbdfa8d2339aa025816dbe03ccc',
+     gasUsed: 181522,
+     logs: [ [Object] ],
+     logsBloom:
+      '0x00000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000020000000000000000000800000000000000000000000010000040000000000400000000000000000000000000000000000000000000200000000000000000000042000000000000000000000000000000002000000080080000000000400002400000000000000000010020000000400000000000000000000020000000000000000000000000000000000000000000000000000000000000000000',
+     status: true,
+     to: '0x7d989ba93296157a4488c6e00951f12ce7c9400e',
+     transactionHash:
+      '0x25f446b7bdf3555f063af3297e79824fc209e3a70fbfe4bcecfc1a487246652b',
+     transactionIndex: 3,
+     rawLogs: [ [Object], [Object] ] },
+  logs:
+   [ { address: '0x7D989ba93296157a4488C6e00951F12cE7c9400E',
+       blockHash:
+        '0x88cd44b1a47983dd6b8fbe72ced52c53bd34a69dd427edc12589efbbca5ef089',
+       blockNumber: 7717754,
+       logIndex: 12,
+       removed: false,
+       transactionHash:
+        '0x25f446b7bdf3555f063af3297e79824fc209e3a70fbfe4bcecfc1a487246652b',
+       transactionIndex: 3,
+       id: 'log_bacdd1e0',
+       event: 'Forwarded',
+       args: [Result] } ] }
+```
+
+Here's the TX: [0x25f446b7bdf3555f063af3297e79824fc209e3a70fbfe4bcecfc1a487246652b](https://rinkeby.etherscan.io/tx/0x25f446b7bdf3555f063af3297e79824fc209e3a70fbfe4bcecfc1a487246652b)
+
+It's possible to notice the transfer of 0.005 ETH to address B, which we previously funded to our bouncer, hence why we set the value to 0.
+
+#### 11) Same as point 9, but A Must Tip B with ERC20 Token Deployed in point 8.
+
+The ERC20 token we deployed is called MNT, and address A already has 10 MNTs, so to tip B we needed to change the input arguments of the forward function as follows:
+
+```bash
+truffle(rinkeby)> let erc20 = await ERC20MNT.deployed()
+truffle(rinkeby)> rewardToken = erc20.address
+'0x74674c4809eF4224a1460c3E4EBe83154E1B0964'
+truffle(rinkeby)> rewardAmount = '1000000000000000000' # 1MNT token reward
+```
+
+We then hashed and signed the arguments:
+
+```bash
+truffle(rinkeby)> bouncer.getHash(acc[0], token.address, 0, data, rewardToken, rewardAmount)
+'0xb77ee0da75691816d3d204140196f25fe16080bbe849f199701fbf2a9ae7ff49'
+truffle(rinkeby)> sig = await web3.eth.sign('0xb77ee0da75691816d3d204140196f25fe16080bbe849f199701fbf2a9ae7ff49', acc[0])
+truffle(rinkeby)> sig
+'0x87437893d159b4ed467d10c706d86f0276dfa44b2000cffff1da8b8251899e9e2b9f25716005b884b38b21d046cefdce6a2049c69105a367ce44959c9ceb7d2d1b'
+```
+
+and finally called the forward function of the bouncer contract:
+
+```bash
+truffle(rinkeby)> bouncer.forward(sig, acc[0], token.address, 0, data, rewardToken, rewardAmount, {from: acc[1]})
+{ tx:
+   '0xacfe4c6f0c4ef9f5a3ff04e10906ca71590684d682a1d9fe4a520c85bd1f362c',
+  receipt:
+   { blockHash:
+      '0x9e7a3963966ce314b0aa96673316390383ad7b0f63c2ea30bd9acfb18ac3d7b7',
+     blockNumber: 7717910,
+     contractAddress: null,
+     cumulativeGasUsed: 5407664,
+     from: '0x80f312bb7cf1dbbdfa8d2339aa025816dbe03ccc',
+     gasUsed: 190664,
+     logs: [ [Object] ],
+     logsBloom:
+      '0x00000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000000000090000000000100000000000040000000000000000008000000000000000000000000000800000000000000000004020000000000000000000800000000000000000000000010000040000080000000080000000000000000000000000000000000000000200000000000000000000042000000000000000000000000000000002000000080000000000060400002400000000000000000010020000000400000000000000000200020000000000000400000000000000000000000000000000000000000000000000000',
+     status: true,
+     to: '0x7d989ba93296157a4488c6e00951f12ce7c9400e',
+     transactionHash:
+      '0xacfe4c6f0c4ef9f5a3ff04e10906ca71590684d682a1d9fe4a520c85bd1f362c',
+     transactionIndex: 29,
+     rawLogs: [ [Object], [Object], [Object] ] },
+  logs:
+   [ { address: '0x7D989ba93296157a4488C6e00951F12cE7c9400E',
+       blockHash:
+        '0x9e7a3963966ce314b0aa96673316390383ad7b0f63c2ea30bd9acfb18ac3d7b7',
+       blockNumber: 7717910,
+       logIndex: 61,
+       removed: false,
+       transactionHash:
+        '0xacfe4c6f0c4ef9f5a3ff04e10906ca71590684d682a1d9fe4a520c85bd1f362c',
+       transactionIndex: 29,
+       id: 'log_6bbf5c7b',
+       event: 'Forwarded',
+       args: [Result] } ] }
+```
+
+Here's the TX: [0xacfe4c6f0c4ef9f5a3ff04e10906ca71590684d682a1d9fe4a520c85bd1f362c](https://rinkeby.etherscan.io/tx/0xacfe4c6f0c4ef9f5a3ff04e10906ca71590684d682a1d9fe4a520c85bd1f362c).
