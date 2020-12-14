@@ -24,11 +24,11 @@ Deployment TX: [0xff0b94be7fa0d88785fee8b5cb24a2c93643008a3a45fb34bc742f4d654052
 
 ### 4) Integrate signerIsWhitelisted from bouncerProxy in your Contract with all the associated variable.
 
-The function has been integrated in MinterContract.sol, as it can be seen in its code, the function takes an hash and the corresponding signature, it extract the address corresponding to said hash and signature, and access the white-list mapping returning true or false, depending whether the address is white-listed or not.
+The function has been integrated in MinterContract.sol, as it can be seen in its code, the function takes an hash and the corresponding signature, used them to extract the signer address, and access the white-list mapping returning true or false, depending whether the address is white-listed or not.
 
 ### 5) Get White-listed on contract [0x53bb77F35df71f463D1051061B105Aafb9A87ea1](https://rinkeby.etherscan.io/address/0x53bb77f35df71f463d1051061b105aafb9a87ea1)
 
-In order to get white-listed on said contract, we had to sign a given hash and provide the signature produced.
+In order to get white-listed on the contract, we had to sign a given hash and provide the produced signature.
 
 ```bash
 truffle(rinkeby)> let acc = await web3.eth.getAccounts()
@@ -54,7 +54,7 @@ Transaction: [0xeb197a083915f35c29be97bba1c47706a229f7fbe0a710ddaa39d351055047e3
 
 ### 6) Claim a Token on contract [0x3e2E325Ffd39BBFABdC227D31093b438584b7FC3](https://rinkeby.etherscan.io/address/0x3e2e325ffd39bbfabdc227d31093b438584b7fc3) through contract [0x53bb77F35df71f463D1051061B105Aafb9A87ea1](https://rinkeby.etherscan.io/address/0x53bb77f35df71f463d1051061b105aafb9a87ea1)
 
-To claim a token we had to sign a hash with our main account which was white-listed in the previous point, then send said message with another account, so as before we got our accounts:
+To claim a token we had to sign an hash with our main account which was white-listed in the previous point, then use the signature as an argument in the call of the claimAToken function which was sent from our secondary account. 
 
 ```bash
 truffle(rinkeby)> let acc = await web3.eth.getAccounts()
@@ -144,7 +144,7 @@ ERC20MNT address: [0x74674c4809eF4224a1460c3E4EBe83154E1B0964](https://rinkeby.e
 
 Deployment TX: [0xbc70ccbe629720c3e6a2ae09d20e1f967607247328a5f86fad1485d55f7c1647](0xbc70ccbe629720c3e6a2ae09d20e1f967607247328a5f86fad1485d55f7c1647)
 
-In the transaction above, it's possible to see the 10 MNT transfer to address A.
+In the transaction above, it's possible to see the 10 MNT transfered to address A.
 
 We then proceeded with deploying the BouncerProxy contract:
 
